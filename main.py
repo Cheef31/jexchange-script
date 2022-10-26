@@ -26,6 +26,9 @@ def get_allOffers(wegld_price, price_limit_to_notify):
     token_to_buy = jsondata[0]["token_a_identifier"].split(separator, 1)[0]
     token_to_buy_with = jsondata[0]["token_b_identifier"].split(separator, 1)[0]
 
+    # Always log cheapest price
+    logging.info(f'Cheapest Price: {round(jsondata[0]["rate"]*wegld_price, 4)} $')
+
     # Print
     print('Prices for 1 ' + token_to_buy + ' in ' + token_to_buy_with + ' on JEXchange.io')
     print('----------------------------------------')
