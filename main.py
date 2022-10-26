@@ -1,16 +1,57 @@
-# This is a sample Python script.
+import logging
+import pprint
+import time
+import requests
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+def init():
+    logging.basicConfig(filename='PriceDrop.log', encoding='utf-8', level=logging.INFO,
+                        format='%(asctime)s %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
 
+def get_wegld_price():
+    url = 'https://microservice.jexchange.io/prices/WEGLD-bd4d79'
+    response = requests.get(url)
+    response.raise_for_status()  # raise exception if invalid response
+    jsondata = response.json()
+    return jsondata["rate"]
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+def get_allOffers(wegld_price):
+    url = 'https://microservice.jexchange.io/v3/offers?token_a_identifier=ASH-a642d1&token_b_identifier=WEGLD-bd4d79&status=0&hide_reserved_offers=true&skip=0&limit=9'
+    response = requests.get(url)
+    response.raise_for_status() # raise exception if invalid response
+    jsondata = response.json()
+    #pprint.pprint(jsondata)
 
+    # Get Token String
+    separator = '-'
+    token_to_buy = jsondata[0]["token_a_identifier"].split(separator, 1)[0]
+    token_to_buy_with = jsondata[0]["token_b_identifier"].split(separator, 1)[0]
 
-# Press the green button in the gutter to run the script.
+    # Print
+    print('Prices for 1 ' + token_to_buy + ' in ' + token_to_buy_with + ' on JEXchange.io')
+    print('----------------------------------------')
+    for x in jsondata:
+        r = x["rate"]
+        r_USD = r * wegld_price
+        print(f'{round(r_USD, 4)} $')
+
+        # Preislimit ab wann gelogged werden soll
+        price_limit_to_notify = 0.15
+
+        if(r_USD < price_limit_to_notify):
+            print('LOG PRICE DROP')
+            logging.info(f'PRICE DROP under {price_limit_to_notify} $ to: {r_USD} $')
+
 if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    init()
+    sleeptime = 10
+    while True:
+        print('')
+        wegld_price = get_wegld_price()
+        print(f'1 WEGLD = {round(wegld_price, 2)} $')
+        print('----------START----------')
+        get_allOffers(wegld_price)
+        print('----------END----------')
+        for x in range(sleeptime):
+            #if (x%2 == 0):
+                #print(f'--- {sleeptime-x} Sec Waiting... ---')
+            time.sleep(1)
