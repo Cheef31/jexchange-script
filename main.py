@@ -14,7 +14,7 @@ def get_wegld_price():
     jsondata = response.json()
     return jsondata["rate"]
 
-def get_allOffers(wegld_price):
+def get_allOffers(wegld_price, price_limit_to_notify):
     url = 'https://microservice.jexchange.io/v3/offers?token_a_identifier=ASH-a642d1&token_b_identifier=WEGLD-bd4d79&status=0&hide_reserved_offers=true&skip=0&limit=9'
     response = requests.get(url)
     response.raise_for_status() # raise exception if invalid response
@@ -34,22 +34,20 @@ def get_allOffers(wegld_price):
         r_USD = r * wegld_price
         print(f'{round(r_USD, 4)} $')
 
-        # Preislimit ab wann gelogged werden soll
-        price_limit_to_notify = 0.15
-
         if(r_USD < price_limit_to_notify):
             print('LOG PRICE DROP')
             logging.info(f'PRICE DROP under {price_limit_to_notify} $ to: {r_USD} $')
 
 if __name__ == '__main__':
     init()
+    price_limit_to_notify = float(input("Preisgrenze ab wann gelogged wird: "))
     sleeptime = 10
     while True:
         print('')
         wegld_price = get_wegld_price()
         print(f'1 WEGLD = {round(wegld_price, 2)} $')
         print('----------START----------')
-        get_allOffers(wegld_price)
+        get_allOffers(wegld_price, price_limit_to_notify)
         print('----------END----------')
         for x in range(sleeptime):
             #if (x%2 == 0):
