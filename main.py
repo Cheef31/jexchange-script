@@ -43,7 +43,8 @@ def get_allOffers(wegld_price, price_limit_to_notify):
 
 if __name__ == '__main__':
     init()
-    price_limit_to_notify = float(input("Preisgrenze ab wann gelogged wird: "))
+    # price_limit_to_notify = float(input("Preisgrenze ab wann gelogged wird: "))
+    price_limit_to_notify = 0.07
     sleeptime = 10
     while True:
         print('')
