@@ -79,15 +79,24 @@ if __name__ == '__main__':
     init()
     #price_limit_to_notify = float(input("Preisgrenze ab wann gelogged wird: "))
     price_limit_to_notify = 0.10
-    sleeptime = 10
-    while True:
-        print('')
-        print('----------START----------')
-        wegld_price = get_wegld_price()
-        print(f'1 WEGLD = {round(wegld_price, 2)} $')
-        get_allOffers(wegld_price, price_limit_to_notify)
-        print('----------END----------')
-        for x in range(sleeptime):
+
+    # ohne Schleife
+    print('----------START----------')
+    wegld_price = get_wegld_price()
+    print(f'1 WEGLD = {round(wegld_price, 2)} $')
+    get_allOffers(wegld_price, price_limit_to_notify)
+    print('----------END----------')
+
+    # mit Schleife
+    #sleeptime = 10
+    #while True:
+        #print('')
+        #print('----------START----------')
+        #wegld_price = get_wegld_price()
+        #print(f'1 WEGLD = {round(wegld_price, 2)} $')
+        #get_allOffers(wegld_price, price_limit_to_notify)
+        #print('----------END----------')
+        #for x in range(sleeptime):
             #if (x%2 == 0):
                 #print(f'--- {sleeptime-x} Sec Waiting... ---')
-            time.sleep(1)
+            #time.sleep(1)
