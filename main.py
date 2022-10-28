@@ -1,11 +1,26 @@
 import logging
+import os
 import pprint
 import time
 import requests
 
 def init():
-    logging.basicConfig(filename='PriceDrop.log', encoding='utf-8', level=logging.INFO,
-                        format='%(asctime)s %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
+    logger = setup_custom_logger('root')
+
+def setup_custom_logger(name):
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    filename = os.path.join(dir_path, 'price_log.log')
+
+    formatter = logging.Formatter(fmt='%(asctime)s - %(levelname)s - %(message)s')
+
+    file_handler = logging.FileHandler(filename)
+    file_handler.setLevel(logging.INFO)
+    file_handler.setFormatter(formatter)
+
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.INFO)
+    logger.addHandler(file_handler)
+    return logger
 
 def postMessageToDiscord(message):
     # Webhook URL
@@ -33,6 +48,7 @@ def get_wegld_price():
     return jsondata["rate"]
 
 def get_allOffers(wegld_price, price_limit_to_notify):
+    logger = logging.getLogger('root')
     url = 'https://microservice.jexchange.io/v3/offers?token_a_identifier=ASH-a642d1&token_b_identifier=WEGLD-bd4d79&status=0&hide_reserved_offers=true&skip=0&limit=9'
     response = requests.get(url)
     response.raise_for_status() # raise exception if invalid response
@@ -49,8 +65,8 @@ def get_allOffers(wegld_price, price_limit_to_notify):
 
     # Always print & log cheapest price
     print(f'Current Price for 1 {token_to_buy}: {cheapest_price} $ ')
-    logging.info(f'Cheapest Price: {cheapest_price} $')
-    logging.info(f'Second cheapest Price: {second_cheapest_price} $')
+    logger.info(f'Cheapest Price: {cheapest_price} $')
+    logger.info(f'Second cheapest Price: {second_cheapest_price} $')
 
     if(cheapest_price < price_limit_to_notify):
         message = f'{token_to_buy} (< {price_limit_to_notify} $) = {cheapest_price} $'
